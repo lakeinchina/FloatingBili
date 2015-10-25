@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#FF000000">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#FF000000">
+
+        <FrameLayout
+            android:id="@+id/player_surface_frame"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:foregroundGravity="clip_horizontal">
+
+            <me.lake.floatingbili.player.playerSurfaceView
+                android:id="@+id/psv_player"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center_vertical"/>
+        </FrameLayout>
+
+    </FrameLayout>
+
+    <ProgressBar
+        android:id="@+id/pb_progress"
+        style="@android:style/Widget.ProgressBar.Small"
+        android:layout_width="8dp"
+        android:layout_height="8dp"/>
+
+
+    <RelativeLayout
+        android:id="@+id/rl_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent">
+
+        <ImageButton
+            android:id="@+id/btn_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="2dp"
+            android:background="@android:color/transparent"
+            android:padding="5dp"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"/>
+
+        <ImageButton
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="2dp"
+            android:background="@android:color/transparent"
+            android:padding="5dp"
+            android:src="@android:drawable/ic_menu_revert"/>
+
+        <RelativeLayout
+            android:id="@+id/rl_textzone"
+            android:layout_width="match_parent"
+            android:layout_height="31dp"
+            android:layout_alignParentBottom="true"
+            android:background="#7F000000">
+
+            <TextView
+                android:id="@+id/tv_channel_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text="频道名称"
+                android:textSize="16sp"/>
+
+            <TextView
+                android:id="@+id/tv_channel_program"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@id/tv_channel_name"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text="节目名称"
+                android:textSize="12sp"/>
+        </RelativeLayout>
+    </RelativeLayout>
+
+</RelativeLayout>
