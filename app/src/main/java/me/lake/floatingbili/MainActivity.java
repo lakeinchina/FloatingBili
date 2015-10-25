@@ -87,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
                 String roomid = et_roomid.getText().toString();
                 if (!"".equals(roomid.trim())) {
                     wb_live.loadUrl(roomid);
+                    wb_live.requestFocus();
                     pb_parseing.setVisibility(View.VISIBLE);
                 }
             }

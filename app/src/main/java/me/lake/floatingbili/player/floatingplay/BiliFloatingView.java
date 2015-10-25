@@ -442,10 +442,18 @@ public class BiliFloatingView implements OnVideoSizeChangedListener, OnInfoListe
     }
 
     private void quit() {
-        wm.removeView(mlayoutView);
+        try {
+            wm.removeView(mlayoutView);
+        } catch (Exception e) {
+
+        }
+        try {
+            ijkMediaPlayer.stop();
+            ijkMediaPlayer.release();
+        } catch (Exception e) {
+
+        }
         mService.stopSelf();
-        ijkMediaPlayer.stop();
-        ijkMediaPlayer.release();
     }
 
     class ScaleGestureListener implements ScaleGestureDetector.OnScaleGestureListener {
