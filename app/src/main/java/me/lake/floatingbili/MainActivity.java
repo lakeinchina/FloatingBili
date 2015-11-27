@@ -19,6 +19,9 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import me.lake.floatingbili.WebView.InJavaScriptLocalObj;
 import me.lake.floatingbili.WebView.LocalJavaScriptCallback;
 import me.lake.floatingbili.player.floatingplay.BiliFloatingPlayService;
@@ -51,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     InJavaScriptLocalObj jScriptLocalObj;
     WebView wb_live;
     private TextView tv_url;
+    private int roomId;
+    private String playurl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +67,8 @@ public class MainActivity extends AppCompatActivity {
                 switch (msg.what) {
                     case 1:
                         if (wb_live != null) {
-                            wb_live.loadUrl("javascript:window.local_obj.resolveResult('<head>'+document.getElementsByClassName('player-box')[0].innerHTML+'</head>');");
+                            //wb_live.loadUrl("javascript:window.local_obj.resolveResult('<head>'+document.getElementsByClassName('player-box')[0].innerHTML+'</head>');");
+                            wb_live.loadUrl("javascript:window.local_obj.resolveResult('<head>'+document.getElementsByTagName('body')[0].innerHTML+'</head>');");
                             parseHadler.sendEmptyMessageDelayed(1, 5000);
                         }
                         break;
@@ -98,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 if (!"".equals(tv_url.getText())) {
                     Intent mIntent = new Intent();
                     mIntent.putExtra("playUrl", tv_url.getText());
+                    mIntent.putExtra("roomID", roomId);
                     mIntent.setClass(MainActivity.this, BiliFloatingPlayService.class);
                     MainActivity.this.startService(mIntent);
                     MainActivity.this.finish();
@@ -114,15 +121,29 @@ public class MainActivity extends AppCompatActivity {
                 if (!html.contains("source")) {
                     return;
                 } else {
-                    int start = html.indexOf("<source");
-                    String source = html.substring(start, html.indexOf(">", start));
-                    String url = source.substring(source.indexOf("src=") + 5);
-                    url = url.substring(0, url.indexOf('"'));
-                    url = url.replaceAll("amp;", "");
-                    Log.d("Bili", "url=" + url);
+                    Pattern pat = Pattern.compile("<source src=\"\\S+\" type=\"video/mp4\">");
+                    Matcher mat = pat.matcher(html);
+                    if (mat.find()) {
+                        String source = mat.group();
+                        playurl = source.substring(13, source.length() - 19);
+                    } else {
+                        return;
+                    }
                     parseHadler.removeCallbacksAndMessages(null);
-                    tv_url.setText(url);
-                    pb_parseing.setVisibility(View.VISIBLE);
+                    pat = Pattern.compile("var room_id = \\d+;");
+                    mat = pat.matcher(html);
+                    if (mat.find()) {
+                        String res = mat.group();
+                        roomId = Integer.parseInt(res.substring(14, res.length() - 1));
+                    }
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            tv_url.setText(playurl);
+                            pb_parseing.setVisibility(View.VISIBLE);
+                        }
+                    });
+
                 }
             }
         });

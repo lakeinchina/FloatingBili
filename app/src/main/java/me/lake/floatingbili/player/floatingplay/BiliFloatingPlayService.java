@@ -31,24 +31,26 @@ public class BiliFloatingPlayService extends Service {
     private BiliFloatingView sFloatView;
     private String channelId;
 
-    private void createView(String playUrl) {
-        sFloatView = new BiliFloatingView(this, playUrl);
+    private void createView(String playUrl, int roomID) {
+        sFloatView = new BiliFloatingView(this, playUrl, roomID);
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String playUrl = null;
+        int roomID=0;
         if (null != intent) {
             Bundle bundle = intent.getExtras();
             if (null != bundle) {
                 playUrl = bundle.getString("playUrl");
+                roomID = bundle.getInt("roomID");
             }
         }
         if (sFloatView == null) {
             NotificationCompat.Builder NBuilder = new NotificationCompat.Builder(this).setSubText("BiliFloatingPlay");
             startForeground(BiliFloatPlayServiceID, NBuilder.build());
 
-            createView(playUrl);
+            createView(playUrl,roomID);
         } else {
             sFloatView.changeUrl(playUrl);
         }

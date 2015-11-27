@@ -21,10 +21,16 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.List;
 
 import me.lake.floatingbili.R;
+import me.lake.floatingbili.danmaku.BiliDanmakuClient;
+import me.lake.floatingbili.danmaku.IIncomingDanmakuCallback;
 import me.lake.floatingbili.player.WeakHandler;
 import me.lake.floatingbili.player.playerSurfaceView;
+import me.lake.live4danmaku.model.danmaku.BaseDanmaku;
+import me.lake.live4danmaku.tools.DanmakuLog;
+import me.lake.live4danmaku.widget.DanmakuSurfaceView;
 import tv.danmaku.ijk.media.player.IMediaPlayer;
 import tv.danmaku.ijk.media.player.IMediaPlayer.OnBufferingUpdateListener;
 import tv.danmaku.ijk.media.player.IMediaPlayer.OnCompletionListener;
@@ -54,6 +60,8 @@ import tv.danmaku.ijk.media.player.IjkMediaPlayer;
 public class BiliFloatingView implements OnVideoSizeChangedListener, OnInfoListener, OnBufferingUpdateListener, OnErrorListener, OnCompletionListener {
     private FrameLayout mSurfaceFrame;
     private playerSurfaceView psv_player;
+    private DanmakuSurfaceView dsv_danmaku;
+    private BiliDanmakuClient danmakuClient;
     // size of the video
     private int navigationBarHeight = 0;
     private int mVideoHeight;
@@ -98,10 +106,12 @@ public class BiliFloatingView implements OnVideoSizeChangedListener, OnInfoListe
     private int stateBarHeight = 50;
 
     private String playUrl;
+    private int roomID;
     private IjkMediaPlayer ijkMediaPlayer;
 
-    public BiliFloatingView(BiliFloatingPlayService c, String playUrl) {
+    public BiliFloatingView(BiliFloatingPlayService c, String playUrl, int roomID) {
         this.playUrl = playUrl;
+        this.roomID = roomID;
         mService = c;
         int notificationBarResources[] = {android.R.drawable.stat_sys_phone_call, android.R.drawable.stat_notify_call_mute,
                 android.R.drawable.stat_notify_sdcard, android.R.drawable.stat_notify_sync, android.R.drawable.stat_notify_missed_call,
@@ -146,6 +156,7 @@ public class BiliFloatingView implements OnVideoSizeChangedListener, OnInfoListe
             updateTextInfo();
             initWindow();
             initPlay();
+            initDanmaku();
             showOverlay();
             mHasVout = false;
         } catch (SecurityException se) {
@@ -211,6 +222,26 @@ public class BiliFloatingView implements OnVideoSizeChangedListener, OnInfoListe
         }
         ijkMediaPlayer.start();
         showLoading();
+    }
+
+    private void initDanmaku() {
+        dsv_danmaku = (DanmakuSurfaceView) mlayoutView.findViewById(R.id.dsv_danmaku);
+        dsv_danmaku.showFPS(true);
+        DanmakuLog.setEnableLog(false);
+        if (roomID != 0) {
+            danmakuClient = new BiliDanmakuClient(roomID, new IIncomingDanmakuCallback() {
+                @Override
+                public void incomingDanmaku(BaseDanmaku danmaku) {
+                    dsv_danmaku.addDanmaku(danmaku);
+                }
+
+                @Override
+                public void incomingDanmakus(List<BaseDanmaku> danmakus) {
+                    dsv_danmaku.addDanmakus(danmakus);
+                }
+            });
+            danmakuClient.start();
+        }
     }
 
 
@@ -308,6 +339,7 @@ public class BiliFloatingView implements OnVideoSizeChangedListener, OnInfoListe
     private void changeSurfaceSize() {
         // force surface buffer size
         psv_player.getHolder().setSizeFromLayout();
+        dsv_danmaku.getHolder().setSizeFromLayout();
     }
 
     private void updateViewPosition(int deltaX, int deltaY) {// 待优化
@@ -380,6 +412,7 @@ public class BiliFloatingView implements OnVideoSizeChangedListener, OnInfoListe
                 wmParams.x = 0;
                 wm.updateViewLayout(mlayoutView, wmParams);
                 psv_player.getHolder().setSizeFromLayout();
+                dsv_danmaku.getHolder().setSizeFromLayout();
             }
             return;
         }
@@ -404,6 +437,7 @@ public class BiliFloatingView implements OnVideoSizeChangedListener, OnInfoListe
         }
         wm.updateViewLayout(mlayoutView, wmParams);
         psv_player.getHolder().setSizeFromLayout();
+        dsv_danmaku.getHolder().setSizeFromLayout();
     }
 
     public void fixViewPostion() {
@@ -439,9 +473,14 @@ public class BiliFloatingView implements OnVideoSizeChangedListener, OnInfoListe
         }
         wm.updateViewLayout(mlayoutView, wmParams);
         psv_player.getHolder().setSizeFromLayout();
+        dsv_danmaku.getHolder().setSizeFromLayout();
     }
 
     private void quit() {
+        if(danmakuClient!=null)
+        {
+            danmakuClient.stop();
+        }
         try {
             wm.removeView(mlayoutView);
         } catch (Exception e) {
