@@ -34,7 +34,7 @@ public class BiliDanmakuModel {
         try {
             JSONObject wholeJsonObject = new JSONObject(jsonString);
             result = new BiliDanmakuModel();
-            result.setRoomid(wholeJsonObject.getString("roomid"));
+            result.setRoomid(wholeJsonObject.optString("roomid"));
             result.setCmd(wholeJsonObject.getString("cmd"));
             JSONArray infoJsonArray = wholeJsonObject.getJSONArray("info");
             JSONArray firstInfoJsonArray = infoJsonArray.getJSONArray(0);
