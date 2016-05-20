@@ -3,4 +3,4 @@
 
 floating play bilibili video,Mainly Live video.
 
-<img src="http://i11.tietuku.com/c97f47a1ba51c3d5.jpg" width = "540" height = "960" align=left />
+<img src="https://github.com/lakeinchina/FloatingBili/blob/master/Screenshot.jpg" width = "540" height = "960" align=left />
